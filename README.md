@@ -21,6 +21,7 @@ Il progetto è nella fase di discovery e fattibilità. Non contiene ancora codic
 - [Piano MVP, benchmark e validazione](docs/04-mvp-benchmark-validation-plan.md)
 - [Misure di fattibilità del dataset MVP](docs/05-mvp-data-feasibility.md)
 - [Architettura di riferimento](docs/06-reference-architecture.md)
+- [Technical Feasibility Specification](docs/07-technical-feasibility-specification.md)
 - [Registro delle fonti e delle licenze](docs/data-sources-register.md)
 
 ## Licenza software

@@ -39,13 +39,14 @@ Una riga punto-tempo-lead deve contenere:
 3. Per precipitazione accumulata, allineare esattamente l'intervallo previsto e l'intervallo osservato.
 4. Dividere train, validation e test nel tempo; vietato random split per record adiacenti.
 5. Conservare la versione del modello meteo: i cambi di ciclo sono possibili confondenti.
+6. Non usare ERA5 come feature contemporanea: una reanalisi incorpora osservazioni raccolte anche dopo il momento della previsione. ERA5 può contribuire soltanto a climatologie, anomalie e statistiche aggregate calcolate esclusivamente sul periodo precedente al cutoff del relativo split.
 
 ## Prima baseline proposta
 
 - area: Italia con buffer meteorologico;
 - target: T2m, Td2m, vento, pressione e precipitazione oraria;
 - forecast: GFS 0,25°, run 00/06/12/18 UTC, lead 1–72 h;
-- feature storiche: ERA5 e DEM soltanto se disponibili senza violare il cutoff temporale;
+- feature statiche: DEM; ERA5 soltanto per climatologie/aggregati calcolati sul passato del rispettivo split;
 - osservazione: ISD/GHCNh, con filtro esplicito su completezza e qualità;
 - split: train 2021–2024, validation 2025, test 2026, con blocchi per stagione e analisi separata degli eventi estremi.
 

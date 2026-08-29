@@ -1,0 +1,31 @@
+# Python and notebooks
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# Environment and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials/
+secrets/
+
+# Local data, model artifacts and generated outputs
+data/
+artifacts/
+models/
+cache/
+reports/generated/
+*.grib
+*.grib2
+*.nc
+*.zarr/
+
+# OS and IDE files
+.DS_Store
+.idea/
+.vscode/

@@ -174,3 +174,32 @@ def test_cache_con_checksum_diverso_riscarica(tmp_path, monkeypatch):
     )
     ris = common.scarica_con_cache("http://esempio/x", dest, checksum_atteso=atteso)
     assert ris.read_bytes() == b"nuovo"
+
+
+def test_richiede_passa_se_i_file_esistono(tmp_path, monkeypatch):
+    monkeypatch.setattr(common, "DATA_DIR", tmp_path)
+    (tmp_path / "01_stations.csv").write_text("x")
+    common.richiede("01_stations.csv")
+
+
+def test_richiede_nomina_il_notebook_mancante(tmp_path, monkeypatch):
+    monkeypatch.setattr(common, "DATA_DIR", tmp_path)
+    with pytest.raises(common.PrerequisitoMancante) as err:
+        common.richiede("01_stations.csv")
+    messaggio = str(err.value)
+    assert "01_stations.csv" in messaggio
+    assert "02-osservazioni-isd" in messaggio
+
+
+def test_richiede_elenca_tutti_i_file_mancanti(tmp_path, monkeypatch):
+    monkeypatch.setattr(common, "DATA_DIR", tmp_path)
+    with pytest.raises(common.PrerequisitoMancante) as err:
+        common.richiede("02_observations.parquet", "03_forecast_points.parquet")
+    messaggio = str(err.value)
+    assert "02_observations.parquet" in messaggio
+    assert "03_forecast_points.parquet" in messaggio
+
+
+def test_ogni_file_noto_ha_un_notebook_di_origine():
+    for nome in common.NOTEBOOK_DI_ORIGINE.values():
+        assert nome.startswith("0")

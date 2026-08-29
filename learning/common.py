@@ -186,3 +186,45 @@ def scarica_con_cache(
             )
 
     return destinazione
+
+
+# Mappa fra artefatto e notebook che lo produce. Serve a trasformare un
+# FileNotFoundError anonimo in un'istruzione comprensibile.
+NOTEBOOK_DI_ORIGINE: dict[str, str] = {
+    "00_env_report.json": "01-setup-e-fondamenti",
+    "01_stations.csv": "02-osservazioni-isd",
+    "02_observations.parquet": "02-osservazioni-isd",
+    "03_forecast_points.parquet": "03-forecast-gfs-grib",
+    "04_dataset.parquet": "04-join-e-anti-leakage",
+    "05_metrics.json": "05-baseline-e-previsione",
+}
+
+
+class PrerequisitoMancante(Exception):
+    """Manca un artefatto prodotto da un notebook precedente."""
+
+
+def richiede(*nomi_file: str) -> None:
+    """Verifica che gli artefatti richiesti esistano prima di proseguire.
+
+    Ogni notebook chiama questa funzione nella prima cella. Se un file
+    manca, il messaggio dice quale notebook eseguire, invece di lasciare
+    che il notebook fallisca piu' avanti con un errore oscuro.
+
+    Args:
+        *nomi_file: nomi degli artefatti attesi dentro DATA_DIR.
+
+    Raises:
+        PrerequisitoMancante: se almeno un artefatto non esiste.
+    """
+    mancanti = [nome for nome in nomi_file if not data_path(nome).exists()]
+    if not mancanti:
+        return
+
+    righe = ["Mancano artefatti prodotti da notebook precedenti:", ""]
+    for nome in mancanti:
+        origine = NOTEBOOK_DI_ORIGINE.get(nome, "sconosciuto")
+        righe.append(f"  - {nome}  ->  eseguire il notebook {origine}")
+    righe.append("")
+    righe.append("I notebook vanno eseguiti in ordine: 01, 02, 03, 04, 05.")
+    raise PrerequisitoMancante("\n".join(righe))

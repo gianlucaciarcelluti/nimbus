@@ -4,7 +4,7 @@ Piattaforma open-source per ricerca e sperimentazione su previsioni meteorologic
 
 ## Stato
 
-Il progetto è nella fase di discovery e fattibilità. Non contiene ancora codice operativo né fornisce previsioni al pubblico.
+Il progetto è nella fase di discovery e fattibilità. Non contiene ancora codice operativo di pipeline né fornisce previsioni al pubblico.
 
 ## Principi
 

@@ -36,6 +36,8 @@ learning/.venv/bin/pip install -r learning/requirements.txt
 Le dipendenze binarie (eccodes per il GRIB, GEOS/PROJ per le mappe) arrivano
 come wheel: su questa piattaforma **non** serve installarle a parte.
 
+Su Linux si usa il python3.12 della propria distribuzione (es. `python3.12 -m venv learning/.venv`).
+
 Avviare i notebook:
 
 ```bash

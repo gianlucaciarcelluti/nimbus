@@ -73,3 +73,104 @@ def test_get_bbox_su_nome_ignoto_elenca_i_validi():
 
 def test_regione_default_esiste():
     assert common.REGIONE_DEFAULT in common.BBOX_REGIONI
+
+
+import hashlib
+
+
+class _RispostaFinta:
+    """Risposta HTTP simulata, sufficiente per il download a blocchi."""
+
+    def __init__(self, contenuto: bytes):
+        self._contenuto = contenuto
+        self.status_code = 200
+
+    def raise_for_status(self):
+        return None
+
+    def iter_content(self, chunk_size=8192):
+        for i in range(0, len(self._contenuto), chunk_size):
+            yield self._contenuto[i:i + chunk_size]
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+
+def test_sha256_file_calcola_il_digest(tmp_path):
+    f = tmp_path / "x.bin"
+    f.write_bytes(b"nimbus")
+    assert common.sha256_file(f) == hashlib.sha256(b"nimbus").hexdigest()
+
+
+def test_scarica_scrive_il_file(tmp_path, monkeypatch):
+    chiamate = []
+
+    def finto_get(url, params=None, stream=False, timeout=None):
+        chiamate.append(url)
+        return _RispostaFinta(b"contenuto")
+
+    monkeypatch.setattr(common.requests, "get", finto_get)
+    dest = tmp_path / "out.bin"
+    ris = common.scarica_con_cache("http://esempio/x", dest)
+    assert ris.read_bytes() == b"contenuto"
+    assert len(chiamate) == 1
+
+
+def test_cache_hit_non_tocca_la_rete(tmp_path, monkeypatch):
+    dest = tmp_path / "out.bin"
+    dest.write_bytes(b"gia-presente")
+
+    def esplodi(*args, **kwargs):
+        raise AssertionError("la rete non doveva essere usata")
+
+    monkeypatch.setattr(common.requests, "get", esplodi)
+    ris = common.scarica_con_cache("http://esempio/x", dest)
+    assert ris.read_bytes() == b"gia-presente"
+
+
+def test_forza_ignora_la_cache(tmp_path, monkeypatch):
+    dest = tmp_path / "out.bin"
+    dest.write_bytes(b"vecchio")
+    monkeypatch.setattr(
+        common.requests, "get",
+        lambda url, params=None, stream=False, timeout=None: _RispostaFinta(b"nuovo"),
+    )
+    ris = common.scarica_con_cache("http://esempio/x", dest, forza=True)
+    assert ris.read_bytes() == b"nuovo"
+
+
+def test_checksum_corretto_e_accettato(tmp_path, monkeypatch):
+    atteso = hashlib.sha256(b"buono").hexdigest()
+    monkeypatch.setattr(
+        common.requests, "get",
+        lambda url, params=None, stream=False, timeout=None: _RispostaFinta(b"buono"),
+    )
+    dest = tmp_path / "out.bin"
+    ris = common.scarica_con_cache("http://esempio/x", dest, checksum_atteso=atteso)
+    assert ris.exists()
+
+
+def test_checksum_errato_rimuove_il_file_e_solleva(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        common.requests, "get",
+        lambda url, params=None, stream=False, timeout=None: _RispostaFinta(b"cattivo"),
+    )
+    dest = tmp_path / "out.bin"
+    with pytest.raises(common.ChecksumError):
+        common.scarica_con_cache("http://esempio/x", dest, checksum_atteso="0" * 64)
+    assert not dest.exists(), "il file corrotto non deve restare sul disco"
+
+
+def test_cache_con_checksum_diverso_riscarica(tmp_path, monkeypatch):
+    dest = tmp_path / "out.bin"
+    dest.write_bytes(b"vecchio")
+    atteso = hashlib.sha256(b"nuovo").hexdigest()
+    monkeypatch.setattr(
+        common.requests, "get",
+        lambda url, params=None, stream=False, timeout=None: _RispostaFinta(b"nuovo"),
+    )
+    ris = common.scarica_con_cache("http://esempio/x", dest, checksum_atteso=atteso)
+    assert ris.read_bytes() == b"nuovo"

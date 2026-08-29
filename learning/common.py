@@ -6,7 +6,10 @@ meteorologico o statistico resta visibile nelle celle dei notebook.
 
 Non fa parte della pipeline Nimbus: vedere learning/README.md.
 """
+import hashlib
 from pathlib import Path
+
+import requests
 
 # Radice del percorso didattico, dedotta dalla posizione di questo file.
 LEARNING_DIR = Path(__file__).resolve().parent
@@ -109,3 +112,77 @@ def get_bbox(nome: str) -> tuple[float, float, float, float]:
         return BBOX_ITALIA
     validi = ", ".join(sorted(BBOX_REGIONI) + sorted(BBOX_MACROAREE) + ["italia"])
     raise KeyError(f"Area '{nome}' non riconosciuta. Aree valide: {validi}")
+
+
+class ChecksumError(Exception):
+    """Il file scaricato non corrisponde al checksum atteso."""
+
+
+def sha256_file(percorso: Path) -> str:
+    """Calcola il digest SHA-256 di un file, leggendolo a blocchi.
+
+    Args:
+        percorso: file da leggere.
+
+    Returns:
+        Il digest esadecimale.
+    """
+    digest = hashlib.sha256()
+    with percorso.open("rb") as f:
+        for blocco in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(blocco)
+    return digest.hexdigest()
+
+
+def scarica_con_cache(
+    url: str,
+    destinazione: Path,
+    *,
+    params: dict | None = None,
+    checksum_atteso: str | None = None,
+    forza: bool = False,
+) -> Path:
+    """Scarica un file solo se non e' gia' presente e integro.
+
+    E' la funzione che rende ripetibili i notebook: rieseguire una cella
+    non riscarica nulla. E' anche la versione didatticamente minima di
+    cio' che nella pipeline Nimbus e' il download idempotente con manifest.
+
+    Args:
+        url: indirizzo da scaricare.
+        destinazione: percorso del file locale.
+        params: parametri di query, usati dal filtro GRIB di NOMADS.
+        checksum_atteso: digest SHA-256 atteso. Se presente, un file in
+            cache che non corrisponde viene riscaricato, e un download
+            che non corrisponde viene rimosso.
+        forza: se True ignora la cache e riscarica comunque.
+
+    Returns:
+        Il percorso del file scaricato o gia' presente.
+
+    Raises:
+        ChecksumError: se il file scaricato non corrisponde al checksum.
+    """
+    destinazione.parent.mkdir(parents=True, exist_ok=True)
+
+    if destinazione.exists() and not forza:
+        if checksum_atteso is None or sha256_file(destinazione) == checksum_atteso:
+            return destinazione
+
+    with requests.get(url, params=params, stream=True, timeout=300) as risposta:
+        risposta.raise_for_status()
+        with destinazione.open("wb") as f:
+            for blocco in risposta.iter_content(chunk_size=1024 * 1024):
+                if blocco:
+                    f.write(blocco)
+
+    if checksum_atteso is not None:
+        effettivo = sha256_file(destinazione)
+        if effettivo != checksum_atteso:
+            destinazione.unlink(missing_ok=True)
+            raise ChecksumError(
+                f"Checksum non corrispondente per {url}: "
+                f"atteso {checksum_atteso}, ottenuto {effettivo}"
+            )
+
+    return destinazione

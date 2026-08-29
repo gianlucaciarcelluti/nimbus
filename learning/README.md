@@ -19,6 +19,32 @@ Va letto prima di tutto il resto.
 
 ## Setup
 
+### Avvio rapido
+
+Lo script fa tutto: crea il virtualenv se manca, installa le dipendenze che
+risultano assenti o a una versione diversa dai pin, poi apre JupyterLab.
+
+```bash
+learning/start-notebooks.sh
+```
+
+Ad ambiente gia' a posto non installa nulla e non contatta la rete: il
+controllo e' locale e dura una frazione di secondo. Serve comunque un Python
+3.12 sul sistema (vedere sotto) la prima volta, per creare il venv.
+
+Opzioni utili:
+
+| Comando | Effetto |
+| --- | --- |
+| `start-notebooks.sh --check` | Controlla e installa, senza avviare JupyterLab |
+| `start-notebooks.sh --no-install` | Segnala cosa manca e si ferma, senza installare |
+| `start-notebooks.sh --recreate` | Ricrea il venv da zero |
+
+Gli argomenti non riconosciuti passano a `jupyter lab`, per esempio
+`start-notebooks.sh --port=8889 --no-browser`.
+
+### Setup manuale
+
 Serve Python 3.12. Su macOS con Homebrew:
 
 ```bash

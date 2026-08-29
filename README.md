@@ -19,6 +19,7 @@ Il progetto è nella fase di discovery e fattibilità. Non contiene ancora codic
 - [Historical Forecast-to-Observation Dataset Protocol](docs/02-historical-forecast-observation-protocol.md)
 - [Censimento delle osservazioni italiane](docs/03-italy-observation-source-census.md)
 - [Piano MVP, benchmark e validazione](docs/04-mvp-benchmark-validation-plan.md)
+- [Misure di fattibilità del dataset MVP](docs/05-mvp-data-feasibility.md)
 - [Registro delle fonti e delle licenze](docs/data-sources-register.md)
 
 ## Licenza software

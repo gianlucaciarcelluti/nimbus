@@ -1,0 +1,27 @@
+# Percorso didattico Nimbus - versioni verificate il 2026-08-29 su Python 3.12.
+# Installare in un venv dedicato: vedere learning/README.md.
+
+# Dati tabellari e formati colonnari
+pandas==3.0.5
+pyarrow==25.0.1
+numpy==2.5.2
+
+# Lettura GRIB dei forecast NWP.
+# eccodes/eccodeslib sono le librerie binarie ECMWF: arrivano come wheel,
+# quindi su questa piattaforma NON serve installare eccodes via Homebrew.
+xarray==2026.7.0
+cfgrib==0.9.15.1
+eccodes==2.48.0
+
+# Grafici e mappe. Cartopy porta con se' GEOS/PROJ come wheel.
+matplotlib==3.11.1
+Cartopy==0.25.0
+
+# Download da NOMADS e NCEI
+requests==2.34.2
+
+# Ambiente notebook
+jupyterlab==4.4.7
+
+# Test del solo common.py
+pytest==8.4.2

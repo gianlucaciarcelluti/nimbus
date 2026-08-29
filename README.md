@@ -4,7 +4,7 @@ Piattaforma open-source per ricerca e sperimentazione su previsioni meteorologic
 
 ## Stato
 
-Il progetto è nella fase di discovery e fattibilità. Non contiene ancora codice operativo né fornisce previsioni al pubblico.
+Il progetto è nella fase di discovery e fattibilità. Non contiene ancora codice operativo di pipeline né fornisce previsioni al pubblico.
 
 ## Principi
 
@@ -24,6 +24,7 @@ Il progetto è nella fase di discovery e fattibilità. Non contiene ancora codic
 - [Technical Feasibility Specification](docs/07-technical-feasibility-specification.md)
 - [Piano di implementazione MVP](docs/08-mvp-implementation-plan.md)
 - [Registro delle fonti e delle licenze](docs/data-sources-register.md)
+- [Percorso didattico interattivo](learning/README.md) — materiale formativo, non fa parte della pipeline
 
 ## Licenza software
 

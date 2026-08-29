@@ -20,6 +20,7 @@ Il progetto è nella fase di discovery e fattibilità. Non contiene ancora codic
 - [Censimento delle osservazioni italiane](docs/03-italy-observation-source-census.md)
 - [Piano MVP, benchmark e validazione](docs/04-mvp-benchmark-validation-plan.md)
 - [Misure di fattibilità del dataset MVP](docs/05-mvp-data-feasibility.md)
+- [Architettura di riferimento](docs/06-reference-architecture.md)
 - [Registro delle fonti e delle licenze](docs/data-sources-register.md)
 
 ## Licenza software
